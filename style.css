@@ -78,3 +78,7 @@ body {
     transition: 0.2s;
     cursor: pointer;
 }
+
+.kalculator__keyboard__button--yellow {
+    color: var(--background-yellow);
+}
