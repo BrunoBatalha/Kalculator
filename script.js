@@ -3,6 +3,7 @@ const operations = ["+", "-", "/", "X", "+/-", "="];
 function Kalculator() {
     let previous = [];
     let currents = [];
+    let canCalculate = false;
     let canClear = false;
     const buttonsElement = document.querySelectorAll("button");
 
@@ -35,6 +36,10 @@ function Kalculator() {
             return;
         }
 
+        if (currents.length === 0 && currentKey === ".") {
+            return;
+        }
+
         if (canClear && !isOperator(currentKey)) {
             currents = [];
             canClear = false;
@@ -42,12 +47,13 @@ function Kalculator() {
 
         if (isOperator(currentKey)) {
             if (containsInPrevious("=")) {
+                canCalculate = false;
                 previous = [...currents, currentKey];
                 setPrevious(previous.join(""));
                 return;
             }
 
-            if (alreadyHasOperatorInPrevious()) {
+            if (alreadyHasOperatorInPrevious() && canCalculate) {
                 const operator = getOperatorFromArray(previous);
                 const previousNumber = convertToNumber(previous.slice(0, previous.length - 1));
                 const currentNumber = convertToNumber(currents);
@@ -59,24 +65,25 @@ function Kalculator() {
                     previous = [result, operator];
                 }
 
+                canCalculate = false;
                 currents = [result];
                 setCurrent(result);
                 setPrevious(previous.join(""));
-            } else {
+
+                if (isOperator(previous.last())) {
+                    previous.pop();
+                    previous.push(currentKey);
+                    setPrevious(previous.join(""));
+                    canClear = true;
+                }
+            } else if (currents.length !== 0) {
                 previous = [...currents, currentKey];
                 setPrevious(previous.join(""));
-
                 canClear = true;
-            }
-
-            if (isOperator(previous.last())) {
-                previous.pop();
-                previous.push(currentKey);
-                setPrevious(previous.join(""));
-
-                canClear = true;
+                canCalculate = false;
             }
         } else {
+            canCalculate = true;
             if (containsInPrevious("=")) {
                 clearKeyArrays();
                 setPrevious(previous.join(""));
@@ -94,11 +101,10 @@ function Kalculator() {
     }
 
     function onKeyDown(event) {
-        console.log(event.key);
         if (isNaN(event.key)) {
-            const operator = convertToOperator(event.key);
-            if (operator != null) {
-                manageKeys(operator);
+            const keyConverted = convertKey(event.key);
+            if (keyConverted != null) {
+                manageKeys(keyConverted);
             }
         } else {
             manageKeys(event.key);
@@ -166,7 +172,7 @@ function getCurrentOperation(keys) {
     return currentOperation;
 }
 
-function convertToOperator(key) {
+function convertKey(key) {
     if (isOperator(key)) {
         return key;
     } else if (key === "*") {
@@ -175,6 +181,8 @@ function convertToOperator(key) {
         return "=";
     } else if (key === "Delete" || key === "Backspace") {
         return "C";
+    } else if (key === ",") {
+        return ".";
     }
     return null;
 }

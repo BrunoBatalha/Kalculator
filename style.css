@@ -8,10 +8,10 @@
 }
 
 body {
-    background-color: var(--background-light);
     margin: 0;
     display: flex;
     justify-content: center;
+    background-color: var(--background-yellow);
 }
 
 * {
@@ -20,12 +20,11 @@ body {
     font-weight: 300;
 }
 
-.background {
+.background-light {
+    background-color: var(--background-light);
     position: fixed;
-    top: 200px;
     width: 100%;
-    height: 100%;
-    background-color: var(--background-yellow);
+    height: 200px;
     z-index: -1;
 }
 
